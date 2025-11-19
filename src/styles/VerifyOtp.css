@@ -1,0 +1,145 @@
+.verify-otp-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.verify-otp-orange-div {
+  background-color: #f97316; /* Orange color */
+  width: 30%; /* Less than half the screen width */
+  height: 100%; /* Full height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.verify-otp-orange-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.verify-otp-orange-content h1 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+}
+
+.verify-otp-orange-content p {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  color: #fff;
+}
+
+.verify-otp-features {
+  list-style: disc;
+  padding: 0;
+  margin-top: 2rem;
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  color: #fff;
+}
+
+.verify-otp-features li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.verify-otp-white-div {
+  background-color: #fff;
+  width: 70%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.verify-otp-logo {
+  width: 100px;
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+}
+
+.verify-otp-content {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.verify-otp-content h3 {
+  color: #f97316;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.verify-otp-content p {
+  color: #4b5563;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.verify-otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.otp-box {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.otp-input {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 1.2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  outline: none;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.otp-input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
+}
+
+.otp-input:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.verify-otp-button {
+  background-color: #f97316;
+  color: #fff;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.verify-otp-button:hover {
+  background-color: #d97706;
+}

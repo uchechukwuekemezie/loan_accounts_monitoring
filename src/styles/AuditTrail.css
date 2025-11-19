@@ -1,0 +1,203 @@
+.audit-trail-section-container {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #fff;
+  padding: 20px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.sidebar-logo {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  padding: 10px;
+  color: #f97316;
+  cursor: pointer;
+}
+
+.sidebar-menu li:hover {
+  background-color: #f3f4f6;
+  border-radius: 4px;
+}
+
+.audit-trail-section-white-div {
+  background-color: #fff;
+  width: 70%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.audit-trail-section-content {
+  max-width: 1400px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.audit-trail-report-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.audit-trail-report-title {
+  text-align: left;
+}
+
+.audit-trail-report-title h2 {
+  margin: 0 0 0.5rem 0;
+  color: #f97316;
+}
+
+.audit-trail-report-title p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.audit-trail-time-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.audit-trail-time-buttons button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.audit-trail-time-buttons button:hover {
+  background-color: #f3f4f6;
+}
+
+.audit-trail-export-button {
+  position: relative;
+  margin-left: auto;
+}
+
+.audit-trail-export-button button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: #f97316; /* Orange background */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff; /* White text */
+  transition: background-color 0.3s;
+}
+
+.audit-trail-export-button button:hover {
+  background-color: #d97706; /* Darker orange on hover */
+}
+
+.audit-trail-export-button button svg {
+  color: #fff; /* White icon */
+}
+
+.export-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+.export-dropdown div {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.export-dropdown div:hover {
+  background-color: #f3f4f6;
+}
+
+.audit-trail-table-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.audit-trail-filter-spacer {
+  flex-grow: 1; /* Pushes elements to the right */
+}
+
+.audit-trail-search-bar {
+  position: relative;
+  width: 250px;
+}
+
+.audit-trail-search-bar input {
+  padding: 0.5rem 2.5rem 0.5rem 1rem; /* Adjusted for larger icon */
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.audit-trail-search-bar .search-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.audit-trail-table-section {
+  background-color: #fff;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.audit-trail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.audit-trail-table th,
+.audit-trail-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.audit-trail-table th {
+  background-color: #f9fafb;
+  font-weight: bold;
+  color: #374151;
+}
+
+.audit-trail-table td {
+  color: #4b5563;
+}
