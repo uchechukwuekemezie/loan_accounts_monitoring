@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../styles/LogIn.css";
 import { useNavigate } from "react-router-dom";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
+import logo1 from "../assets/loan-icon.png";
 
 const LogIn = () => {
   const [credentials, setCredentials] = useState({
@@ -25,7 +25,7 @@ const LogIn = () => {
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,23 +34,22 @@ const LogIn = () => {
       console.log("Login attempted by:", credentials);
       setError("");
       // navigate to otp verification page with the email as state
-      navigate("/VerifyOtp.jsx", {state: {email: credentials.email}});
+      navigate("/VerifyOtp.jsx", { state: { email: credentials.email } });
     } else {
       setError("Please enter a valid email address.");
     }
-    
   };
 
   const handleForgotPassword = () => {
     navigate("/ForgotPassword.jsx");
-  }
+  };
 
   return (
     <div className="login-container">
-      <div className="login-orange-div">
-        <div className="login-orange-content">
-          <h1>T24 Report Access</h1>
-          <p>By AccionMFB</p>
+      <div className="login-purple-div">
+        <div className="login-purple-content">
+          <h1>Loan Accounts Monitoring</h1>
+          <p>By Loan Accounts plc</p>
           <ul className="login-features">
             <li>Monitoring</li>
             <li>Management</li>
@@ -59,7 +58,7 @@ const LogIn = () => {
         </div>
       </div>
       <div className="login-white-div">
-        <img src={logo1} alt="Accion logo" className="login-logo" />
+        <img src={logo1} alt="loan accounts logo" className="login-logo" />
         <div className="login-content">
           <h2>Welcome</h2>
           <p>Please enter your credentials to login</p>
@@ -89,7 +88,7 @@ const LogIn = () => {
               />
             </div>
             <div className="form-options">
-              <label>
+              <label className="remember-me">
                 <input
                   type="checkbox"
                   name="rememberMe"
@@ -99,9 +98,14 @@ const LogIn = () => {
                 {""}
                 Remember me
               </label>
-              <button className="forgot-password" onClick={handleForgotPassword}>Forgot Password?</button>
+              <button
+                className="forgot-password"
+                onClick={handleForgotPassword}
+              >
+                Forgot Password?
+              </button>
             </div>
-             {error && <p className="error-message">{error}</p>}
+            {error && <p className="error-message">{error}</p>}
             <button onClick={handleSubmit} className="login-button">
               Sign in
             </button>
