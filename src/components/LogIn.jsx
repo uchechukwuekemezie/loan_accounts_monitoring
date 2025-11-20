@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../styles/LogIn.css";
 import { useNavigate } from "react-router-dom";
-import logo1 from "../assets/loan-icon.png";
+import logo1 from "../assets/Picture1.png";
 
 const LogIn = () => {
   const [credentials, setCredentials] = useState({

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ForgotPassword.css";
-import logo1 from "../assets/loan-icon.png";
+import logo1 from "../assets/Picture1.png";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -12,39 +12,53 @@ const ForgotPassword = () => {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!email) {
+  const handleSubmit = (e) => {
+    e.preventDefault;
+
+    if (!email.trim()) {
       setError("Please enter your email address.");
-    } else {
-      setError("");
-      // navigate to verify otp page with email as state
-      navigate("/VerifyOtp.jsx", { state: { email } });
+      return;
     }
+
+    // email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setError("");
+    navigate("/VerifyOtp.jsx", { state: { email } });
   };
 
   return (
     <div className="forgot-password-container">
-      <div className="forgot-password-orange-div">
-        <div className="forgot-password-orange-content">
-          <h1>T24 Report Access</h1>
-          <p>By AccionMFB</p>
-          <ul className="verify-otp-features">
+      {/* The purple left panel */}
+      <div className="forgot-password-purple-div">
+        <div className="forgot-password-purple-content">
+          <h1>Loan Accounts Monitoring</h1>
+          <p>By Loan Accounts plc</p>
+          <ul className="forgot-password-features">
             <li>Monitoring</li>
             <li>Management</li>
             <li>Exporting</li>
           </ul>
         </div>
       </div>
+      {/* The white side panel */}
       <div className="forgot-password-white-div">
-        <img src={logo1} alt="Accion logo" className="forgot-password-logo" />
+        <img
+          src={logo1}
+          alt="loan accounts logo"
+          className="forgot-password-logo"
+        />
         <div className="forgot-password-content">
           <h3>Forgot Password?</h3>
           <p>
             Enter the email associated with your account. We will send you a
-            verification code.
+            verification code to reset your password.
           </p>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="forgot-password-form">
             <div className="form-group">
               <label htmlFor="email">Email Address</label>
               <input

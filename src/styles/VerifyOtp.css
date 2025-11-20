@@ -44,7 +44,7 @@
 }
 
 .verify-otp-features li::before {
-  content: "Check";
+  content: "✓";
   position: absolute;
   left: 0;
   color: #c4b5fd;

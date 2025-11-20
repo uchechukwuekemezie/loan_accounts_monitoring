@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/VerifyOtp.css";
-import logo1 from "../assets/loan-icon.png";
+import logo1 from "../assets/Picture1.png";
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(new Array(6).fill(""));
