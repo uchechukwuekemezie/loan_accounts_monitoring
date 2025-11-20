@@ -14,20 +14,30 @@ export const getChartData = (delinquencies) => {
     "Dec",
   ];
 
-  // Parse Naira string → number
+  // Robust parser for Naira strings (handles ₦, commas, spaces, nulls)
   const parseAmount = (str) => {
-    if (!str) return 0;
-    return parseFloat(str.replace("₦", "").replace(/,/g, "").trim()) || 0;
+    if (!str || typeof str !== "string") return 0;
+    const cleaned = str.replace(/[^0-9.-]+/g, "").trim();
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 0 : num;
   };
 
-  // Use lastDateOfPayment for month grouping
-  // Use principalInArrears + interestInArrears = total overdue
-  const monthlyTotals = labels.map((_, idx) => {
-    return delinquencies.reduce((sum, d) => {
-      const paymentMonth = new Date(d.lastDateOfPayment).getMonth();
-      const principal = parseAmount(d.principalInArrears);
-      const interest = parseAmount(d.interestInArrears);
-      return paymentMonth === idx ? sum + principal + interest : sum;
+  const monthlyTotals = labels.map((_, index) => {
+    return delinquencies.reduce((sum, item) => {
+      try {
+        const lastPaymentDate = new Date(item.lastDateOfPayment);
+        if (isNaN(lastPaymentDate.getTime())) return sum;
+
+        if (lastPaymentDate.getMonth() === index) {
+          const principal = parseAmount(item.principalInArrears);
+          const interest = parseAmount(item.interestInArrears);
+          return sum + principal + interest;
+        }
+        return sum;
+      } catch {
+        console.warn("Invalid delinquency record skipped:", item);
+        return sum;
+      }
     }, 0);
   });
 
@@ -37,9 +47,19 @@ export const getChartData = (delinquencies) => {
       {
         label: "Delinquency Overdue (₦)",
         data: monthlyTotals,
-        backgroundColor: "rgba(249, 115, 22, 1)",
-        borderColor: "rgba(255, 130, 40, 1)",
-        borderWidth: 1,
+        backgroundColor: "rgba(147, 51, 234, 0.88)", // Strong purple (perfect for risk/alerts)
+        borderColor: "#9333ea", // Vibrant purple-600
+        borderWidth: 3,
+        borderRadius: 10,
+        borderSkipped: false,
+        hoverBackgroundColor: "#7e22ce",
+        hoverBorderColor: "#6b21a8",
+        pointBackgroundColor: "#9333ea",
+        pointHoverBackgroundColor: "#c4b5fd",
+        pointRadius: 6,
+        pointHoverRadius: 9,
+        tension: 0.2,
+        fill: true,
       },
     ],
   };
