@@ -14,14 +14,25 @@ export const getChartData = (loansData) => {
     "Dec",
   ];
 
-  const data = labels.map((month) => {
+  // Safely extract and parse amount (handles ₦ and commas)
+  const parseAmount = (amountStr) => {
+    if (typeof amountStr !== "string") return 0;
+    return parseFloat(amountStr.replace(/[^0-9.-]+/g, "")) || 0;
+  };
+
+  const data = labels.map((month, index) => {
     return loansData.reduce((sum, loan) => {
-      const loanMonth = new Date(loan.disbursedDate).getMonth();
-      const monthIndex = new Date(`2025-${month}`).getMonth();
-      return loanMonth === monthIndex
-        ? sum +
-            parseFloat(loan.amountDisbursed.replace("₦", "").replace(",", ""))
-        : sum;
+      try {
+        const loanData = new Date(loan.disbursedDate);
+        if (isNaN(loanData)) return sum; // to skip invalid dates
+        if (loanData.getMonth() === index) {
+          return sum + parseAmount(loan.amountDisbursed);
+        }
+        return sum;
+      } catch {
+        console.warn("Invalid actual entry skipped:", loan);
+        return sum; // skip entries with invalid date format.
+      }
     }, 0);
   });
 
@@ -31,9 +42,14 @@ export const getChartData = (loansData) => {
       {
         label: "Active Loans (₦)",
         data,
-        backgroundColor: "rgba(249, 115, 22, 1)",
-        borderColor: "rgba(255, 130, 40, 1)",
-        borderWidth: 1,
+        backgroundColor: "rgba(124, 58, 237, 0.85)",
+        borderColor: "#7c3aed",
+        borderWidth: 2,
+        borderRadius: 6,
+        borderSkipped: false,
+        hoverBackgroundColor: "#5b21b6",
+        hoverBorderColor: "#4c1d95",
+        tension: 0.1, // slight curve for line charts
       },
     ],
   };

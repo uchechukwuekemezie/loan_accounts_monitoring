@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Dashboard.css";
 import { useNavigate } from "react-router-dom";
-import logo2 from "../assets/accion-logo-svg-orange.svg";
+import logo2 from "../assets/Picture1.png";
 import userAvatar from "../assets/avatar-male.jpg";
-import { FaBell, FaCommentDots } from "react-icons/fa";
+import { FaBell, FaCommentDots, FaBars } from "react-icons/fa";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -34,6 +34,7 @@ ChartJS.register(
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   /* ---------- navigation ---------- */
   const go = (p) => () => navigate(p);
@@ -56,12 +57,12 @@ const Dashboard = () => {
 
   const [user] = useState({
     email: "uche@accionmfb.com",
-    name: "Uchechukwu Ekemezie",
+    name: "User Name",
   });
 
   const [stats] = useState({
     activeLoans: "₦4,000,000,000",
-    deliquency: "₦250,000,000",
+    delinquency: "₦250,000,000",
     wof: "₦300,000",
     deposit: "₦1,000,000",
   });
@@ -96,53 +97,106 @@ const Dashboard = () => {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: "top" }, title: { display: false } },
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          font: { size: 14, weight: "600" },
+          color: "#1e293b",
+          padding: 20,
+          usePointStyle: true,
+          pointStyle: "rectRounded",
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(30, 10, 70, 0.9)",
+        titleColor: "#e0e7ff",
+        bodyColor: "#c7d2fe",
+        borderColor: "#7c3aed",
+        borderWidth: 2,
+        cornerRadius: 12,
+        displayColors: true,
+        callbacks: {
+          label: (context) => {
+            return ` ₦${context.parsed.y.toLocaleString()}`;
+          },
+        },
+      },
+    },
     scales: {
-      y: { beginAtZero: true, title: { display: true, text: "Amount (₦)" } },
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(124, 58, 237, 0.1)" },
+        ticks: {
+          callback: (value) => "₦" + value.toLocaleString(),
+          color: "#64748b",
+        },
+        title: {
+          display: true,
+          text: "Amount (₦)",
+          color: "#4c1d95",
+          font: { size: 14, weight: "bold" },
+        },
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: "#64748b" },
+      },
+    },
+    animation: {
+      duration: 1500,
+      easing: "easeOutQuart",
     },
   };
 
   /* ---------- guarded chart renderer ---------- */
-  const Chart = ({ data, id }) =>
+  const Chart = ({ data, title }) =>
     data?.labels?.length > 0 ? (
-      <Bar id={id} data={data} options={chartOptions} height={200} />
+      <div className="chart-wrapper">
+        <h3 className="chart-title">{title}</h3>
+        <Bar data={data} options={chartOptions} />
+      </div>
     ) : (
-      <div className="chart-placeholder">No data yet</div>
+      <div className="chart-placeholder">
+        <p>No data available for {title}</p>
+      </div>
     );
 
   return (
     <div className="dashboard-container">
+      {/* The mobile menu button */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+
       {/* Sidebar */}
-      <div className="sidebar">
-        <img src={logo2} alt="Accion Logo" className="sidebar-logo" />
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
+        <img src={logo2} alt="loan accounts logo" className="sidebar-logo" />
         <ul className="sidebar-menu">
-          <li onClick={nav.accounts} style={{ cursor: "pointer" }}>
-            Accounts Section
-          </li>
-          <li onClick={nav.activeLoans} style={{ cursor: "pointer" }}>
-            Active Loans Section
-          </li>
-          <li onClick={nav.delinquency} style={{ cursor: "pointer" }}>
-            Delinquency Section
-          </li>
-          <li onClick={nav.writeOff} style={{ cursor: "pointer" }}>
-            WOF Section
-          </li>
-          <li onClick={nav.deposit} style={{ cursor: "pointer" }}>
-            Deposit Section
-          </li>
-          <li onClick={nav.actuals} style={{ cursor: "pointer" }}>
-            Actual Section
-          </li>
-          <li onClick={nav.ctr} style={{ cursor: "pointer" }}>
-            CTR Compliance Section
-          </li>
-          <li onClick={nav.admin} style={{ cursor: "pointer" }}>
-            Admin Management
-          </li>
-          <li onClick={nav.audit} style={{ cursor: "pointer" }}>
-            Audit Trail
-          </li>
+          {[
+            { label: "Accounts Section", action: nav.accounts },
+            { label: "Active Loans Section", action: nav.activeLoans },
+            { label: "Delinquency Section", action: nav.delinquency },
+            { label: "WOF Section", action: nav.writeOff },
+            { label: "Deposit Section", action: nav.deposit },
+            { label: "Actual Section", action: nav.actuals },
+            { label: "CTR Compliance Section", action: nav.ctr },
+            { label: "Admin Management", action: nav.admin },
+            { label: "Audit Trail", action: nav.audit },
+          ].map((item, i) => (
+            <li
+              key={i}
+              onClick={() => {
+                item.action();
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              {item.label}
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -151,69 +205,64 @@ const Dashboard = () => {
         {/* Navbar */}
         <div className="navbar">
           <div className="nav-left">
-            <img src={logo2} alt="Finance Logo" className="nav-logo" />
+            <img src={logo2} alt="loan accounts logo" className="nav-logo" />
             <input
               type="text"
-              placeholder="Search here..."
+              placeholder="Search reports..."
               className="search-bar"
             />
           </div>
           <div className="nav-right">
-            <span className="user-email">{user.email}</span>
+            <span className="user-name">{user.name}</span>
+            <div className="nav-icons">
+              <div className="icon bell">
+                <FaBell size={20} />
+                <span className="badge">3</span>
+              </div>
+              <div className="icon chat">
+                <FaCommentDots size={20} />
+              </div>
+            </div>
+            <img src={userAvatar} alt="Avatar" className="user-avatar" />
             <button onClick={handleLogout} className="logout-button">
               Logout
             </button>
-            <div className="nav-icons">
-              <span className="icon bell">
-                {" "}
-                <FaBell size={20} />
-                <span className="badge">3</span>
-              </span>
-              <span className="icon chat">
-                <FaCommentDots size={20} />
-              </span>
-            </div>
-            <img src={userAvatar} alt="User Avatar" className="user-avatar" />
           </div>
         </div>
 
         {/* Stats */}
-        <div className="stats-section">
-          <div className="stat-card">
-            Active Loans
-            <br />
-            {stats.activeLoans}
+        <div className="stats-grid">
+          <div className="stat-card purple">
+            <h4>Active Loans</h4>
+            <p>{stats.activeLoans}</p>
           </div>
-          <div className="stat-card">
-            Delinquency
-            <br />
-            {stats.deliquency}
+          <div className="stat-card violet">
+            <h4>Delinquency</h4>
+            <p>{stats.delinquency}</p>
           </div>
-          <div className="stat-card">
-            WOF
-            <br />
-            {stats.wof}
+          <div className="stat-card indigo">
+            <h4>Write-Off (WOF)</h4>
+            <p>{stats.wof}</p>
           </div>
-          <div className="stat-card">
-            Deposit
-            <br />
-            {stats.deposit}
+          <div className="stat-card purple-dark">
+            <h4>Total Deposits</h4>
+            <p>{stats.deposit}</p>
           </div>
         </div>
 
         {/* Charts */}
-        <div className="graphs-section">
-          <div className="graph-card">
-            <Chart data={graphData.activeLoans} id="activeLoansGraph" />
+        <div className="charts-grid">
+          <div className="chart-card">
+            <Chart data={graphData.activeLoans} title="Active Loans Trend" />
           </div>
-          <div className="graph-card">
-            <Chart data={graphData.actuals} id="actualsGraph" />
+          <div className="chart-card">
+            <Chart data={graphData.actuals} title="Actuals Performance" />
           </div>
-          <div className="graph-card">
-            <Chart data={graphData.deposits} id="depositGraph" />
+          <div className="chart-card">
+            <Chart data={graphData.deposits} title="Deposit Growth" />
           </div>
-          <div className="graph-card">
-            <Chart data={graphData.delinquency} id="delinquencyGraph" />
+          <div className="chart-card">
+            <Chart data={graphData.delinquency} title="Delinquency Rate" />
           </div>
         </div>
       </div>
