@@ -1,212 +1,305 @@
-.account-section-container {
-  display: flex;
-  flex-direction: row;
-  height: auto;
+/* Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "Inter", sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
 }
 
+.account-section-container {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+/* Sidebar */
 .sidebar {
-  width: 250px;
-  background-color: #fff;
-  padding: 20px;
-  border-right: 1px solid #e5e7eb;
+  width: 260px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(124, 58, 237, 0.2);
+  padding: 2rem 1.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 900;
+  transition: transform 0.3s ease;
 }
 
 .sidebar-logo {
-  width: 100px;
-  margin-bottom: 20px;
+  width: 130px;
+  margin: 0 auto 3rem;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.3s;
 }
 
-.sidebar-menu {
-  list-style: none;
-  padding: 0;
+.sidebar-logo:hover {
+  transform: scale(1.05);
 }
 
 .sidebar-menu li {
-  padding: 10px;
-  color: #f97316;
+  padding: 0.9rem 1rem;
+  margin: 0.4rem 0;
+  border-radius: 0.75rem;
+  color: #4c1d95;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
-.sidebar-menu li:hover {
-  background-color: #f3f4f6;
-  border-radius: 4px;
+.sidebar-menu li:hover,
+.sidebar-menu li.active {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: white;
+  transform: translateX(8px);
 }
 
-.account-section-white-div {
-  background-color: #fff;
-  width: 70%;
-  height: 100%;
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 2.5rem;
+  transition: margin-left 0.3s;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2.2rem;
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+.page-header p {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.controls-bar {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 2rem;
-  box-sizing: border-box;
-  position: relative;
-}
-
-.account-section-content {
-  max-width: 1200px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
-.account-report-header {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: center;
 }
 
-.account-report-title {
-  text-align: left;
-}
-
-.account-report-title h2 {
-  margin: 0 0 0.5rem 0;
-  color: #f97316;
-}
-
-.account-report-title p {
-  margin: 0;
-  color: #4b5563;
-}
-
-.account-time-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.account-time-buttons button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  background-color: #fff;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.account-time-buttons button:hover {
-  background-color: #f3f4f6;
-}
-
-.account-export-button {
+.search-box {
   position: relative;
-  margin-left: auto;
+  flex: 1;
+  max-width: 400px;
 }
 
-.account-export-button button {
-  padding: 0.5rem 1rem;
+.search-box input {
+  width: 100%;
+  padding: 0.9rem 1rem 0.9rem 3rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.filters select {
+  padding: 0.8rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  background: white;
+  font-size: 0.95rem;
+  min-width: 160px;
+}
+
+.export-wrapper {
+  position: relative;
+}
+
+.export-btn {
+  background: #7c3aed;
+  color: white;
   border: none;
-  border-radius: 0.25rem;
-  background-color: #f97316;
-  color: #ffffff;
+  padding: 0.8rem 1.5rem;
+  border-radius: 1rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
-.account-export-button button:hover {
-  background-color: #d97706;
-}
-
-.account-export-button button svg {
-  color: #fff; /* White icon */
+.export-btn:hover {
+  background: #6d28d9;
 }
 
 .export-dropdown {
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  overflow: hidden;
   z-index: 10;
-  min-width: 150px;
-  display: flex;
-  flex-direction: column;
+  margin-top: 0.5rem;
 }
 
 .export-dropdown div {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .export-dropdown div:hover {
-  background-color: #f3f4f6;
+  background: #f3e8ff;
+  color: #7c3aed;
 }
 
-.account-table-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+/* Table */
+.table-container {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
-.account-filter-spacer {
-  flex-grow: 1; /* Pushes dropdowns to the right */
-}
-
-.account-search-bar {
-  position: relative;
-  width: 250px;
-}
-
-.account-search-bar input {
-  padding: 0.5rem 2.5rem 0.5rem 1rem; /* Adjusted for larger icon */
-  border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  font-size: 1rem;
-  width: 100%;
-}
-
-.account-search-bar .search-icon {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-}
-
-.account-category-filter,
-.account-kyc-filter {
-  padding: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  font-size: 1rem;
-  width: 200px;
-}
-
-.account-table-section {
-  background-color: #fff;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.account-users-table {
+.accounts-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
-.account-users-table th,
-.account-users-table td {
-  padding: 0.75rem;
+.accounts-table th {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: white;
+  padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
 }
 
-.account-users-table th {
-  background-color: #f9fafb;
-  font-weight: bold;
+.accounts-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
   color: #374151;
 }
 
-.account-users-table td {
-  color: #4b5563;
+.accounts-table tr:hover {
+  background: #f8f0ff;
+}
+
+.tag {
+  padding: 0.35rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tag.savings {
+  background: #dbeafe;
+  color: #5b21b6;
+}
+.tag.current {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tier {
+  padding: 0.35rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.tier-1 {
+  background: #d1fae5;
+  color: #065f46;
+}
+.tier-2 {
+  background: #fef3c7;
+  color: #92400e;
+}
+.tier-3 {
+  background: #fce7f3;
+  color: #be123c;
+}
+
+code {
+  background: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  font-family: "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+  .controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-box {
+    max-width: 100%;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .table-container {
+    overflow-x: auto;
+  }
+  .accounts-table {
+    min-width: 900px;
+  }
 }

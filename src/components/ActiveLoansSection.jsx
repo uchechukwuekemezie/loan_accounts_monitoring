@@ -4,7 +4,6 @@ import * as XLSX from "xlsx";
 import "../styles/ActiveLoansSection.css";
 import logo1 from "../assets/accion-logo-svg-orange.svg";
 import { FaCalendarAlt, FaFile, FaSearch } from "react-icons/fa";
-import { useLoanContext } from "../context/LoanContext";
 
 const ActiveLoansSection = () => {
   const navigate = useNavigate();

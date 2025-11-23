@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import "../styles/AccountSection.css";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
-import { FaSearch, FaCalendarAlt, FaFile } from "react-icons/fa";
+import logo1 from "../assets/Picture1.png";
+import {
+  FaSearch,
+  FaFile,
+  FaFileExport,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
 
 const AccountSection = () => {
   const navigate = useNavigate();
@@ -62,6 +68,7 @@ const AccountSection = () => {
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [kycFilter, setKycFilter] = useState("All Tiers");
   const [exportDropdown, setExportDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // sample data
   const [accounts, setAccounts] = useState([
@@ -398,14 +405,21 @@ const AccountSection = () => {
   ]);
 
   // filter accounts based on input
-  const filteredAccounts = accounts.filter(
-    (account) =>
-      (account.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        account.accountNo.includes(searchTerm)) &&
-      (categoryFilter === "All Categories" ||
-        account.category === categoryFilter) &&
-      (kycFilter === "All Tiers" || account.kycTier === kycFilter)
-  );
+  const filteredAccounts = accounts
+    .filter(
+      (acc) =>
+        acc.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        acc.accountNo.includes(searchTerm) ||
+        acc.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((acc) =>
+      categoryFilter === "All Categories"
+        ? true
+        : acc.category === categoryFilter
+    )
+    .filter((acc) =>
+      kycFilter === "All Tiers" ? true : acc.kycTier === kycFilter
+    );
 
   // data exporting
   const handleExportClick = () => setExportDropdown(!exportDropdown);
@@ -431,7 +445,14 @@ const AccountSection = () => {
 
   return (
     <div className="account-section-container">
-      <div className="sidebar">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo1}
           alt="Accion Logo"
@@ -473,104 +494,111 @@ const AccountSection = () => {
         </ul>
       </div>
 
-      <div className="account-section-white-div">
-        <div className="account-section-content">
-          <div className="account-report-header">
-            <div className="account-report-title">
-              <h2>Account Report</h2>
-            </div>
-            {/* <div className="account-time-buttons">
-              <button>Day</button>
-              <button>Week</button>
-              <button>Month</button>
-              <button>Year</button>
-              <button>All Time</button>
-              <button>
-                <FaCalendarAlt /> Custom Date
-              </button>
-            </div> */}
-            <div className="account-export-button">
-              <button onClick={handleExportClick}>
-                <FaFile /> Export Data
-              </button>
-              {exportDropdown && (
-                <div className="export-dropdown">
-                  <div onClick={() => handleExportOption("Excel")}>
-                    Export as Excel
-                  </div>
-                  <div onClick={() => handleExportOption("CSV")}>
-                    Export as CSV
-                  </div>
-                  <div onClick={() => handleExportOption("PDF")}>
-                    Export as PDF
-                  </div>
-                </div>
-              )}
-            </div>
+      {/* The main content */}
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Accounts Report</h1>
+          <p>View and manage all customer accounts</p>
+        </div>
+
+        <div className="controls-bar">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search name, account or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="account-table-controls">
-            <div className="account-search-bar">
-              <input
-                type="text"
-                placeholder="Search customer name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="search-icon" />
-            </div>
-            <div className="account-filter-spacer" />
+
+          <div className="filters">
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="account-category-filter"
             >
-              <option value="All Categories">Account Category</option>
-              <option value="Savings">Savings</option>
-              <option value="Current">Current</option>
-              <option value="Fixed">Fixed</option>
+              <option value="All Categories">All Categories</option>
+              <option>Savings</option>
+              <option>Current</option>
+              <option>Fixed</option>
             </select>
+
             <select
               value={kycFilter}
               onChange={(e) => setKycFilter(e.target.value)}
-              className="account-kyc-filter"
             >
-              <option value="All Tiers">KYC Tier</option>
-              <option value="Tier 1">Tier 1</option>
-              <option value="Tier 2">Tier 2</option>
-              <option value="Tier 3">Tier 3</option>
+              <option value="All Tiers">All KYC Tiers</option>
+              <option>Tier 1</option>
+              <option>Tier 2</option>
+              <option>Tier 3</option>
             </select>
           </div>
-          <div className="account-table-section">
-            <table className="account-users-table">
-              <thead>
-                <tr>
-                  <th>CIF</th>
-                  <th>CUSTOMER NAME</th>
-                  <th>EMAIL</th>
-                  <th>ACCOUNT NUMBER</th>
-                  <th>ACCOUNT OFFICER</th>
-                  <th>CATEGORY</th>
-                  <th>KYC TIER</th>
-                  <th>BRANCH</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAccounts.map((account, index) => (
-                  <tr key={index}>
-                    <td>{account.customerNo}</td>{" "}
-                    {/* Using customerNo as CIF proxy */}
-                    <td>{account.customerName}</td>
-                    <td>{account.email}</td>
-                    <td>{account.accountNo}</td>
-                    <td>{account.accountOfficer}</td>
-                    <td>{account.category}</td>
-                    <td>{account.kycTier}</td>
-                    <td>{account.branch}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          <div className="export-wrapper">
+            <button className="export-btn" onClick={handleExportClick}>
+              <FaFileExport /> Export
+            </button>
+            {exportDropdown && (
+              <div className="export-dropdown">
+                <div onClick={() => handleExportOption("Excel")}>
+                  Export as Excel
+                </div>
+                <div onClick={() => handleExportOption("CSV")}>
+                  Export as CSV
+                </div>
+                <div onClick={() => handleExportOption("PDF")}>
+                  Export as PDF
+                </div>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="table-container">
+          <table className="accounts-table">
+            <thead>
+              <tr>
+                <th>CIF</th>
+                <th>Customer Name</th>
+                <th>Email</th>
+                <th>Account Number</th>
+                <th>Account Officer</th>
+                <th>Category</th>
+                <th>KYC Tier</th>
+                <th>Branch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAccounts.map((acc, i) => (
+                <tr key={i}>
+                  <td>{acc.customerNo}</td>
+                  <td>
+                    <strong>{acc.customerName}</strong>
+                  </td>
+                  <td>{acc.email}</td>
+                  <td>
+                    <code>{acc.accountNo}</code>
+                  </td>
+                  <td>{acc.accountOfficer}</td>
+                  <td>
+                    <span className={`tag ${acc.category.toLowerCase()}`}>
+                      {acc.category}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`tier tier-${
+                        acc.kycTier.split(" ")[1] || "1"
+                      }`}
+                    >
+                      {acc.kycTier}
+                    </span>
+                  </td>
+                  <td>{acc.branch}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
