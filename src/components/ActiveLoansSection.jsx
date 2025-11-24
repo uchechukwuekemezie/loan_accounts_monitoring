@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import "../styles/ActiveLoansSection.css";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
-import { FaCalendarAlt, FaFile, FaSearch } from "react-icons/fa";
+import logo1 from "../assets/Picture1.png";
+import { FaSearch, FaFileExport, FaBars, FaTimes } from "react-icons/fa";
 
 const ActiveLoansSection = () => {
   const navigate = useNavigate();
@@ -58,6 +58,7 @@ const ActiveLoansSection = () => {
     navigate("/CtrComplianceSection.jsx");
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [amountFilter, setAmountFilter] = useState("All Amounts");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
@@ -407,16 +408,28 @@ const ActiveLoansSection = () => {
     },
   ]);
 
-  const filteredLoans = loans.filter(
-    (loan) =>
-      (loan.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loan.cifNo.includes(searchTerm)) &&
-      (amountFilter === "All Amounts" ||
-        parseFloat(loan.amountDisbursed.replace("₦", "").replace(",", "")) <=
-          parseFloat(amountFilter.replace("₦", "").replace(",", "")) ||
-        (amountFilter === "Above ₦1,000,000" && // custom range for demo
-          (statusFilter === "All Statuses" || loan.status === statusFilter)))
-  );
+  const parseAmount = (str) => {
+    return parseFloat(str.replace(/[^0-9.-]+/g, "")) || 0;
+  };
+
+  const filteredLoans = loans
+    .filter(
+      (loan) =>
+        loan.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        loan.cifNo.includes(searchTerm) ||
+        loan.contractNo?.includes(searchTerm)
+    )
+    .filter((loan) => {
+      if (amountFilter === "All Amounts") return true;
+      const amount = parseAmount(loan.amountDisbursed);
+      if (amountFilter === "Up to ₦500,000") return amount <= 500000;
+      if (amountFilter === "Up to ₦1,000,000") return amount <= 1000000;
+      if (amountFilter === "Above ₦1,000,000") return amount > 1000000;
+      return true;
+    })
+    .filter(
+      (loan) => statusFilter === "All Statuses" || loan.status === statusFilter
+    );
 
   const handleExportClick = () => setExportDropdown(!exportDropdown);
   const handleExportOption = (format) => {
@@ -441,7 +454,15 @@ const ActiveLoansSection = () => {
 
   return (
     <div className="active-loans-section-container">
-      <div className="sidebar">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      {/* The sidebar */}
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo1}
           alt="Accion Logo"
@@ -483,100 +504,99 @@ const ActiveLoansSection = () => {
         </ul>
       </div>
 
-      <div className="active-loans-section-white-div">
-        <div className="active-loans-section-content">
-          <div className="active-loans-report-header">
-            <div className="active-loans-report-title">
-              <h2>Active Loans Report</h2>
-            </div>
-            {/* <div className="active-loans-time-buttons">
-              <button>Day</button>
-              <button>Week</button>
-              <button>Month</button>
-              <button>Year</button>
-              <button>All Time</button>
-              <button>
-                <FaCalendarAlt /> Custom Date
-              </button>
-            </div> */}
-            <div className="active-loans-export-button">
-              <button onClick={handleExportClick}>
-                <FaFile /> Export Data
-              </button>
-              {exportDropdown && (
-                <div className="export-dropdown">
-                  <div onClick={() => handleExportOption("Excel")}>
-                    Export as Excel
-                  </div>
-                  <div onClick={() => handleExportOption("CSV")}>
-                    Export as CSV
-                  </div>
-                  <div onClick={() => handleExportOption("PDF")}>
-                    Export as PDF
-                  </div>
-                </div>
-              )}
-            </div>
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Active Loans Report</h1>
+          <p>Monitor and manage all active loan accounts</p>
+        </div>
+
+        <div className="controls-bar">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name, CIF, or contract..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="active-loans-table-controls">
-            <div className="active-loans-search-bar">
-              <input
-                type="text"
-                placeholder="Search client name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="search-icon" />
-            </div>
-            <div className="active-loans-filter-spacer" />
+
+          <div className="filters">
             <select
               value={amountFilter}
               onChange={(e) => setAmountFilter(e.target.value)}
-              className="active-loans-amount-filter"
             >
-              <option value="All Amounts">Amount Disbursed</option>
-              <option value="₦500,000">Up to ₦500,000</option>
-              <option value="₦1,000,000">Up to ₦1,000,000</option>
+              <option value="All Amounts">All Amounts</option>
+              <option value="Up to ₦500,000">≤ ₦500,000</option>
+              <option value="Up to ₦1,000,000">≤ ₦1,000,000</option>
               <option value="Above ₦1,000,000">Above ₦1,000,000</option>
             </select>
+
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="active-loans-status-filter"
             >
-              <option value="All Statuses">Loan Status</option>
+              <option value="All Statuses">All Statuses</option>
               <option value="Active">Active</option>
               <option value="Overdue">Overdue</option>
             </select>
           </div>
-          <div className="active-loans-table-section">
-            <table className="active-loans-table">
-              <thead>
-                <tr>
-                  <th>CIF#</th>
-                  <th>Client Name</th>
-                  <th>Product Category</th>
-                  <th>Amount Disbursed</th>
-                  <th>Balance Outstanding</th>
-                  <th>Status</th>
-                  <th>Branch</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLoans.map((loan, index) => (
-                  <tr key={index}>
-                    <td>{loan.cifNo}</td>
-                    <td>{loan.clientName}</td>
-                    <td>{loan.productCategory}</td>
-                    <td>{loan.amountDisbursed}</td>
-                    <td>{loan.balanceOutstanding}</td>
-                    <td>{loan.status}</td>
-                    <td>{loan.branch}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          <div className="export-wrapper">
+            <button className="export-btn" onClick={handleExportClick}>
+              <FaFileExport /> Export
+            </button>
+            {exportDropdown && (
+              <div className="export-dropdown">
+                <div onClick={() => handleExportOption("Excel")}>
+                  Export as Excel
+                </div>
+                <div onClick={() => handleExportOption("CSV")}>
+                  Export as CSV
+                </div>
+                <div onClick={() => handleExportOption("PDF")}>
+                  Export as PDF
+                </div>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="table-container">
+          <table className="loans-table">
+            <thead>
+              <tr>
+                <th>CIF #</th>
+                <th>Client Name</th>
+                <th>Product</th>
+                <th>Disbursed</th>
+                <th>Outstanding</th>
+                <th>Status</th>
+                <th>Branch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLoans.map((loan, i) => (
+                <tr key={i}>
+                  <td>
+                    <code>{loan.cifNo}</code>
+                  </td>
+                  <td>
+                    <strong>{loan.clientName}</strong>
+                  </td>
+                  <td>{loan.productCategory}</td>
+                  <td className="amount">{loan.amountDisbursed}</td>
+                  <td className="amount">{loan.balanceOutstanding}</td>
+                  <td>
+                    <span className={`status-tag ${loan.status.toLowerCase()}`}>
+                      {loan.status}
+                    </span>
+                  </td>
+                  <td>{loan.branch}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
