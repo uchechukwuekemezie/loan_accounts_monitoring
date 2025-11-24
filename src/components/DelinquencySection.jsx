@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/DelinquencySection.css";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
+import logo1 from "../assets/Picture1.png";
 import * as XLSX from "xlsx";
-import { FaSearch, FaCalendarAlt, FaFile } from "react-icons/fa";
+import { FaSearch, FaFileExport, FaBars } from "react-icons/fa";
 
 const DelinquencySection = () => {
   const navigate = useNavigate();
@@ -58,9 +58,10 @@ const DelinquencySection = () => {
     navigate("/CtrComplianceSection.jsx");
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [amountFilter, setAmountFilter] = useState("All Amounts");
-  const [statusFilter, setStatusFilter] = useState("All Statuses");
+  const [daysDueFilter, setDaysDueFilter] = useState("All Statuses");
   const [exportDropdown, setExportDropdown] = useState(false);
 
   const [delinquencies, setDelinquencies] = useState([
@@ -396,19 +397,31 @@ const DelinquencySection = () => {
     },
   ]);
 
-  const filteredDelinquencies = delinquencies.filter(
-    (delinquency) =>
-      (delinquency.customerName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-        delinquency.contractNo.includes(searchTerm)) &&
-      (amountFilter === "All Amounts" ||
-        parseFloat(
-          delinquency.amountDisbursed.replace("₦", "").replace(",", "")
-        ) <= parseFloat(amountFilter.replace("₦", "").replace(",", "")) ||
-        amountFilter === "Above ₦1,000,000") &&
-      (statusFilter === "All Statuses" || delinquency.status === statusFilter)
-  );
+  const parseAmount = (str) => parseFloat(str.replace(/[^0-9.-]+/g, "")) || 0;
+
+  const filteredDelinquencies = delinquencies
+    .filter(
+      (d) =>
+        d.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.contractNo.includes(searchTerm) ||
+        d.cifNo?.includes(searchTerm)
+    )
+    .filter((d) => {
+      if (amountFilter === "All Amounts") return true;
+      const amount = parseAmount(d.amountDisbursed);
+      if (amountFilter === "Up to ₦500,000") return amount <= 500000;
+      if (amountFilter === "Up to ₦1,000,000") return amount <= 1000000;
+      if (amountFilter === "Above ₦1,000,000") return amount > 1000000;
+      return true;
+    })
+    .filter((d) => {
+      if (daysDueFilter === "All Days Due") return true;
+      const days = parseInt(d.numberOfDaysDue);
+      if (daysDueFilter === "1-15 Days") return days <= 15;
+      if (daysDueFilter === "16-30 Days") return days > 15 && days <= 30;
+      if (daysDueFilter === "Over 30 Days") return days > 30;
+      return true;
+    });
 
   const handleExportClick = () => setExportDropdown(!exportDropdown);
   const handleExportOption = (format) => {
@@ -433,7 +446,14 @@ const DelinquencySection = () => {
 
   return (
     <div className="delinquency-section-container">
-      <div className="sidebar">
+      {/* The mobile menu toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo1}
           alt="Accion Logo"
@@ -475,97 +495,104 @@ const DelinquencySection = () => {
         </ul>
       </div>
 
-      <div className="delinquency-section-white-div">
-        <div className="delinquency-section-content">
-          <div className="delinquency-report-header">
-            <div className="delinquency-report-title">
-              <h2>Delinquency Report</h2>
-            </div>
-            {/* <div className="delinquency-time-buttons">
-              <button>Day</button>
-              <button>Week</button>
-              <button>Month</button>
-              <button>Year</button>
-              <button>All Time</button>
-              <button>
-                <FaCalendarAlt /> Custom Date
-              </button>
-            </div> */}
-            <div className="delinquency-export-button">
-              <button onClick={handleExportClick}>
-                <FaFile /> Export Data
-              </button>
-              {exportDropdown && (
-                <div className="export-dropdown">
-                  <div onClick={() => handleExportOption("Excel")}>
-                    Export as Excel
-                  </div>
-                  <div onClick={() => handleExportOption("CSV")}>
-                    Export as CSV
-                  </div>
-                  <div onClick={() => handleExportOption("PDF")}>
-                    Export as PDF
-                  </div>
-                </div>
-              )}
-            </div>
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Delinquency Report</h1>
+          <p>Monitor and manage overdue loan accounts</p>
+        </div>
+
+        <div className="controls-bar">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name, contract, or CIF..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="delinquency-table-controls">
-            <div className="delinquency-search-bar">
-              <input
-                type="text"
-                placeholder="Search customer name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="search-icon" />
-            </div>
-            <div className="delinquency-filter-spacer" />
+
+          <div className="filters">
             <select
               value={amountFilter}
               onChange={(e) => setAmountFilter(e.target.value)}
-              className="delinquency-amount-filter"
             >
-              <option value="All Amounts">Amount Disbursed</option>
-              <option value="₦500,000">Up to ₦500,000</option>
-              <option value="₦1,000,000">Up to ₦1,000,000</option>
-              <option value="Above ₦1,000,000">Above ₦1,000,000</option>
+              <option value="All Amounts">All Amounts</option>
+              <option value="Up to ₦500,000">≤ ₦500,000</option>
+              <option value="Up to ₦1,000,000">≤ ₦1,000,000</option>
+              <option value="Above ₦1,000,000"> Above ₦1,000,000</option>
             </select>
+
             <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="delinquency-status-filter"
+              value={daysDueFilter}
+              onChange={(e) => setDaysDueFilter(e.target.value)}
             >
-              <option value="All Statuses">Loan Status</option>
-              <option value="Delinquent">Delinquent</option>
+              <option value="All Days Due">All Days Due</option>
+              <option value="1-15 Days">1–15 Days</option>
+              <option value="16-30 Days">16–30 Days</option>
+              <option value="Over 30 Days">Over 30 Days</option>
             </select>
           </div>
-          <div className="delinquency-table-section">
-            <table className="delinquency-table">
-              <thead>
-                <tr>
-                  <th>Contract No.</th>
-                  <th>Customer Name</th>
-                  <th>Amount Disbursed</th>
-                  <th>Balance Outstanding</th>
-                  <th>Status</th>
-                  <th>Branch</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDelinquencies.map((delinquency, index) => (
-                  <tr key={index}>
-                    <td>{delinquency.contractNo}</td>
-                    <td>{delinquency.customerName}</td>
-                    <td>{delinquency.amountDisbursed}</td>
-                    <td>{delinquency.balanceOutstanding}</td>
-                    <td>{delinquency.status}</td>
-                    <td>{delinquency.branch}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          <div className="export-wrapper">
+            <button className="export-btn" onClick={handleExportClick}>
+              <FaFileExport /> Export
+            </button>
+            {exportDropdown && (
+              <div className="export-dropdown">
+                <div onClick={() => handleExportOption("Excel")}>
+                  Export as Excel
+                </div>
+                <div onClick={() => handleExportOption("CSV")}>
+                  Export as CSV
+                </div>
+                <div onClick={() => handleExportOption("PDF")}>
+                  Export as PDF
+                </div>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="table-container">
+          <table className="delinquency-table">
+            <thead>
+              <tr>
+                <th>Contract No.</th>
+                <th>Customer Name</th>
+                <th>Disbursed</th>
+                <th>Outstanding</th>
+                <th>Days Due</th>
+                <th>Arrears</th>
+                <th>Status</th>
+                <th>Branch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredDelinquencies.map((d, i) => (
+                <tr key={i}>
+                  <td>
+                    <code>{d.contractNo}</code>
+                  </td>
+                  <td>
+                    <strong>{d.customerName}</strong>
+                  </td>
+                  <td className="amount">{d.amountDisbursed}</td>
+                  <td className="amount">{d.balanceOutstanding}</td>
+                  <td className="days-due">{d.numberOfDaysDue} days</td>
+                  <td className="arrears">
+                    ₦
+                    {parseAmount(d.principalInArrears) +
+                      parseAmount(d.interestInArrears)}
+                  </td>
+                  <td>
+                    <span className="status-tag delinquent">{d.status}</span>
+                  </td>
+                  <td>{d.branch}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
