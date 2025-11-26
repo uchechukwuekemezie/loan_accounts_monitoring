@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import "../styles/DepositSection.css";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
-import { FaSearch, FaCalendarAlt, FaFile } from "react-icons/fa";
+import logo1 from "../assets/Picture1.png";
+import { FaSearch, FaFileExport, FaBars, FaTimes } from "react-icons/fa";
 
 const DepositSection = () => {
   const navigate = useNavigate();
@@ -58,9 +58,9 @@ const DepositSection = () => {
     navigate("/CtrComplianceSection.jsx");
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [amountFilter, setAmountFilter] = useState("All Amounts");
-  const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [exportDropdown, setExportDropdown] = useState(false);
 
   const [deposits, setDeposits] = useState([
@@ -246,16 +246,26 @@ const DepositSection = () => {
     },
   ]);
 
-  const filteredDeposits = deposits.filter(
-    (deposit) =>
-      (deposit.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        deposit.customerNumber.includes(searchTerm)) &&
-      (amountFilter === "All Amounts" ||
-        parseFloat(deposit.depositAmount.replace("₦", "").replace(",", "")) <=
-          parseFloat(amountFilter.replace("₦", "").replace(",", "")) ||
-        amountFilter === "Above ₦1,000,000") &&
-      (statusFilter === "All Statuses" || statusFilter === "Active") // Placeholder; all deposits assumed active
-  );
+  const parseAmount = (str) =>
+    parseFloat((str || "").replace(/[^0-9.-]+/g, "")) || 0;
+
+  const filteredDeposits = deposits
+    .filter((d) => {
+      const term = searchTerm.toLowerCase();
+      return (
+        d.customerName.toLowerCase().includes(term) ||
+        d.customerNumber.toLowerCase().includes(term) ||
+        d.accountNumber.toLowerCase().includes(term)
+      );
+    })
+    .filter((d) => {
+      if (amountFilter === "All Amounts") return true;
+      const amount = parseAmount(d.depositAmount);
+      if (amountFilter === "Up to ₦500,000") return amount <= 500000;
+      if (amountFilter === "Up to ₦1,000,000") return amount <= 1000000;
+      if (amountFilter === "Above ₦1,000,000") return amount > 1000000;
+      return true;
+    });
 
   const handleExportClick = () => setExportDropdown(!exportDropdown);
   const handleExportOption = (format) => {
@@ -279,8 +289,16 @@ const DepositSection = () => {
   };
 
   return (
-    <div className="deposit-section-container">
-      <div className="sidebar">
+    <div className="deposit-container">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      {/* The sidebar */}
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo1}
           alt="Accion Logo"
@@ -322,101 +340,99 @@ const DepositSection = () => {
         </ul>
       </div>
 
-      <div className="deposit-section-white-div">
-        <div className="deposit-section-content">
-          <div className="deposit-report-header">
-            <div className="deposit-report-title">
-              <h2>Deposit Report</h2>
-            </div>
-            {/* <div className="deposit-time-buttons">
-              <button>Day</button>
-              <button>Week</button>
-              <button>Month</button>
-              <button>Year</button>
-              <button>All Time</button>
-              <button>
-                <FaCalendarAlt /> Custom Date
-              </button>
-            </div> */}
-            <div className="deposit-export-button">
-              <button onClick={handleExportClick}>
-                <FaFile /> Export Data
-              </button>
-              {exportDropdown && (
-                <div className="export-dropdown">
-                  <div onClick={() => handleExportOption("Excel")}>
-                    Export as Excel
-                  </div>
-                  <div onClick={() => handleExportOption("CSV")}>
-                    Export as CSV
-                  </div>
-                  <div onClick={() => handleExportOption("PDF")}>
-                    Export as PDF
-                  </div>
-                </div>
-              )}
-            </div>
+      {/* The main content */}
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Deposit Report</h1>
+          <p>Track all active fixed deposit accounts and performance</p>
+        </div>
+
+        <div className="controls-bar">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name, CIF, or account number..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="deposit-table-controls">
-            <div className="deposit-search-bar">
-              <input
-                type="text"
-                placeholder="Search customer name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="search-icon" />
-            </div>
-            <div className="deposit-filter-spacer" />
+
+          <div className="filters">
             <select
               value={amountFilter}
               onChange={(e) => setAmountFilter(e.target.value)}
-              className="deposit-amount-filter"
             >
-              <option value="All Amounts">Amount Disbursed</option>
-              <option value="₦500,000">Up to ₦500,000</option>
-              <option value="₦1,000,000">Up to ₦1,000,000</option>
-              <option value="Above ₦1,000,000">Above ₦1,000,000</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="deposit-status-filter"
-            >
-              <option value="All Statuses">Loan Status</option>
-              <option value="Active">Active</option>
+              <option value="All Amounts">All Amounts</option>
+              <option value="Up to ₦500,000">
+                Less than or equal to ₦500,000
+              </option>
+              <option value="Up to ₦1,000,000">
+                Less than or equal to ₦1,000,000
+              </option>
+              <option value="Above ₦1,000,000">Greater than ₦1,000,000</option>
             </select>
           </div>
-          <div className="deposit-table-section">
-            <table className="deposit-table">
-              <thead>
-                <tr>
-                  <th>CIF</th>
-                  <th>CUSTOMER NAME</th>
-                  <th>ACCOUNT NUMBER</th>
-                  <th>BOOKING DATE</th>
-                  <th>DEPOSIT AMOUNT</th>
-                  <th>SAVINGS OFFICER</th>
-                  <th>MATURITY DATE</th>
-                  <th>BRANCH</th>
+
+          <div className="export-wrapper">
+            <button className="export-btn" onClick={handleExportClick}>
+              <FaFileExport /> Export
+            </button>
+            {exportDropdown && (
+              <div className="export-dropdown">
+                <div onClick={() => handleExportOption("Excel")}>
+                  Export as Excel
+                </div>
+                <div onClick={() => handleExportOption("CSV")}>
+                  Export as CSV
+                </div>
+                <div onClick={() => handleExportOption("PDF")}>
+                  Export as PDF
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="table-container">
+          <table className="deposit-table">
+            <thead>
+              <tr>
+                <th>CIF</th>
+                <th>Customer Name</th>
+                <th>Account No.</th>
+                <th>Booking Date</th>
+                <th>Deposit Amount</th>
+                <th>Officer</th>
+                <th>Maturity</th>
+                <th>Status</th>
+                <th>Branch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredDeposits.map((d, i) => (
+                <tr key={i}>
+                  <td>
+                    <code>{d.customerNumber}</code>
+                  </td>
+                  <td>
+                    <strong>{d.customerName}</strong>
+                  </td>
+                  <td>
+                    <code>{d.accountNumber}</code>
+                  </td>
+                  <td>{d.bookingDate}</td>
+                  <td className="amount positive">{d.depositAmount}</td>
+                  <td>{d.savingsOfficer}</td>
+                  <td>{d.maturityDate}</td>
+                  <td>
+                    <span className="status-tag active">Active</span>
+                  </td>
+                  <td>{d.branch}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredDeposits.map((deposit, index) => (
-                  <tr key={index}>
-                    <td>{deposit.customerNumber}</td>
-                    <td>{deposit.customerName}</td>
-                    <td>{deposit.accountNumber}</td>
-                    <td>{deposit.bookingDate}</td>
-                    <td>{deposit.depositAmount}</td>
-                    <td>{deposit.savingsOfficer}</td>
-                    <td>{deposit.maturityDate}</td>
-                    <td>{deposit.branch}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

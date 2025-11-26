@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
 import "../styles/AdminManagement.css";
-import logo2 from "../assets/accion-logo-svg-orange.svg";
-import { FaUser, FaPlus, FaTimes, FaSearch } from "react-icons/fa";
+import logo2 from "../assets/Picture1.png";
+import {
+  FaUser,
+  FaPlus,
+  FaTimes,
+  FaSearch,
+  FaBars,
+  FaCheck,
+} from "react-icons/fa";
 
 const AdminManagement = () => {
   // the links for navigation
@@ -58,8 +65,16 @@ const AdminManagement = () => {
     navigate("/CtrComplianceSection.jsx");
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [toast, setToast] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    dept: "",
+  });
 
   const [adminData, setAdminData] = useState([
     {
@@ -99,15 +114,6 @@ const AdminManagement = () => {
     },
   ]);
 
-  // The right sidebar and form
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    dept: "",
-  });
-  const [toast, setToast] = useState(false);
-
   const departments = [
     "Information Security Deartment",
     "Digital",
@@ -119,11 +125,11 @@ const AdminManagement = () => {
   // to create an admin user
   const handleCreateAdmin = (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.dept) return;
+    if (!form.name.trim() || !form.email.trim() || !form.dept) return;
 
     const newAdmin = {
       userId: `#${Date.now().toString().slice(-5)}`,
-      userName: form.name,
+      userName: form.name.trim(),
       role: "Admin",
       department: form.dept,
       status: "Active",
@@ -136,17 +142,28 @@ const AdminManagement = () => {
     setTimeout(() => setToast(false), 4000);
   };
 
-  const filteredData = adminData.filter(
-    (admin) =>
-      (admin.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        admin.userId.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (departmentFilter === "All Departments" ||
-        admin.department === departmentFilter)
-  );
+  const filteredData = adminData
+    .filter((a) => {
+      const term = searchTerm.toLowerCase();
+      return a.userName.toLowerCase().includes(term) || a.userId.includes(term);
+    })
+    .filter(
+      (a) =>
+        departmentFilter === "All Departments" ||
+        a.department === departmentFilter
+    );
 
   return (
-    <div className="admin-management-container">
-      <div className="sidebar">
+    <div className="admin-container">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      {/* The sidebar */}
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo2}
           alt="Accion Logo"
@@ -188,84 +205,100 @@ const AdminManagement = () => {
         </ul>
       </div>
 
-      <div className="admin-management-white-div">
-        <div className="admin-management-content">
-          {/* The three box cards */}
-          <div className="admin-stat-boxes">
-            <div className="admin-stat-box">
-              <FaUser className="admin-icon" />
-              <p>4 users</p>
-              <h3>Super Admin</h3>
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Admin Management</h1>
+          <p>Manage system users and access permissions</p>
+        </div>
+
+        {/* The stat cards */}
+        <div className="stat-cards">
+          <div className="stat-card super-admin">
+            <FaUser className="icon" />
+            <div>
+              <h3>
+                {adminData.filter((a) => a.role === "Super Admin").length}
+              </h3>
+              <p>Super Admins</p>
             </div>
-            <div className="admin-stat-box">
-              <FaUser className="admin-icon" />
-              <p>7 users</p>
-              <h3>Admin</h3>
+          </div>
+          <div className="stat-card regular-admin">
+            <FaUser className="icon" />
+            <div>
+              <h3>{adminData.filter((a) => a.role === "Admin").length}</h3>
+              <p>Regular Admins</p>
             </div>
-            <div
-              className="admin-stat-box add-new"
-              onClick={() => setSidebarOpen(true)}
-              style={{ cursor: "pointer" }}
-            >
-              <FaPlus className="admin-icon" />
-              <h3>Add New Admin</h3>
+          </div>
+          <div
+            className="stat-card add-new"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <FaPlus className="icon" />
+            <h3>Add New Admin</h3>
+          </div>
+        </div>
+
+        {/* The table section */}
+        <div className="table-section">
+          <div className="table-header">
+            <h2>Admin Users</h2>
+            <div className="controls">
+              <div className="search-box">
+                <FaSearch className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search user or ID..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <select
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+              >
+                <option value="All Departments">All Departments</option>
+                {departments.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* The tables section */}
-          <div className="admin-table-section">
-            <div className="admin-table-header">
-              <h2>Admin users</h2>
-              <div className="admin-table-control">
-                <div className="admin-search-bar">
-                  <input
-                    type="text"
-                    placeholder="Search for user"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <FaSearch className="search-icon" />
-                </div>
-                <select
-                  value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
-                  className="admin-department-filter"
-                >
-                  <option value="All Departments">All Departments</option>
-                  {departments.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <table className="admin-users-table">
+          <div className="table-container">
+            <table className="admin-table">
               <thead>
                 <tr>
-                  <th>USER ID</th>
-                  <th>USER NAME</th>
-                  <th>ASSIGNED ROLE</th>
-                  <th>DEPARTMENT</th>
-                  <th>STATUS</th>
+                  <th>User ID</th>
+                  <th>User Name</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((admin, index) => (
-                  <tr key={index}>
-                    <td>{admin.userId}</td>
-                    <td>{admin.userName}</td>
-                    <td>{admin.role}</td>
-                    <td>{admin.department}</td>
+                {filteredData.map((admin, i) => (
+                  <tr key={i}>
+                    <td>
+                      <code>{admin.userId}</code>
+                    </td>
+                    <td>
+                      <strong>{admin.userName}</strong>
+                    </td>
                     <td>
                       <span
-                        className={
-                          admin.status === "Active"
-                            ? "status-active"
-                            : "status-inactive"
-                        }
+                        className={`role-tag ${admin.role
+                          .toLowerCase()
+                          .replace(" ", "-")}`}
                       >
-                        *{admin.status}
+                        {admin.role}
+                      </span>
+                    </td>
+                    <td>{admin.department}</td>
+                    <td>
+                      <span className={`status ${admin.status.toLowerCase()}`}>
+                        {admin.status}
                       </span>
                     </td>
                   </tr>
@@ -276,20 +309,17 @@ const AdminManagement = () => {
         </div>
       </div>
 
-      {/* The right sidebar */}
+      {/* The right sidebar form */}
       {sidebarOpen && (
-        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}>
-          <div className="sidebar-right" onClick={(e) => e.stopPropagation()}>
-            <div className="sidebar-header">
+        <div className="overlay" onClick={() => setSidebarOpen(false)}>
+          <div className="sidebar-form" onClick={(e) => e.stopPropagation()}>
+            <div className="form-header">
               <h3>Add New Admin</h3>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="close-btn"
-              >
+              <button onClick={() => setSidebarOpen(false)}>
                 <FaTimes />
               </button>
             </div>
-            <p>Please provide user details below</p>
+            <p>Fill in the details to create a new admin account</p>
             <form onSubmit={handleCreateAdmin}>
               <input
                 type="text"
@@ -303,6 +333,7 @@ const AdminManagement = () => {
                 placeholder="Email Address"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                required
               />
               <select
                 value={form.dept}
@@ -316,27 +347,24 @@ const AdminManagement = () => {
                   </option>
                 ))}
               </select>
-              <button type="submit" className="create-admin-btn">
-                Create Admin
+              <button type="submit" className="submit-btn">
+                Create Admin Account
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* The toast notification */}
+      {/* Toast Notification */}
       {toast && (
         <div className="toast-overlay">
           <div className="toast">
-            <div className="toast-check">Check</div>
-            <h4>Admin Added Successfully</h4>
-            <p>
-              A new admin has been created and their login credentials have been
-              sent to their official email
-            </p>
-            <button onClick={() => setToast(false)} className="toast-ok">
-              Okay
-            </button>
+            <div className="toast-icon">
+              <FaCheck />
+            </div>
+            <h4>Admin Created Successfully!</h4>
+            <p>Login credentials have been sent to their email.</p>
+            <button onClick={() => setToast(false)}>Okay</button>
           </div>
         </div>
       )}

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import "../styles/ActualSection.css";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
-import { FaSearch, FaCalendarAlt, FaFile } from "react-icons/fa";
+import logo1 from "../assets/Picture1.png";
+import { FaSearch, FaFileExport, FaBars, FaTimes } from "react-icons/fa";
 
 const ActualSection = () => {
   const navigate = useNavigate();
@@ -58,6 +58,7 @@ const ActualSection = () => {
     navigate("/CtrComplianceSection.jsx");
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loanTypeFilter, setLoanTypeFilter] = useState("All Types");
   const [exportDropdown, setExportDropdown] = useState(false);
@@ -265,12 +266,23 @@ const ActualSection = () => {
     },
   ]);
 
-  const filteredActuals = actuals.filter(
-    (actual) =>
-      (actual.nameOfClient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        actual.cif.includes(searchTerm)) &&
-      (loanTypeFilter === "All Types" || actual.loanType === loanTypeFilter)
-  );
+  const filteredActuals = actuals
+    .filter((a) => {
+      const term = searchTerm.toLowerCase();
+      return (
+        a.nameOfClient.toLowerCase().includes(term) ||
+        a.cif.toLowerCase().includes(term) ||
+        a.accountNumber.toLowerCase().includes(term)
+      );
+    })
+    .filter(
+      (a) => loanTypeFilter === "All Types" || a.loanType === loanTypeFilter
+    );
+
+  const uniqueLoanTypes = [
+    "All Types",
+    ...new Set(actuals.map((a) => a.loanType)),
+  ];
 
   const handleExportClick = () => setExportDropdown(!exportDropdown);
   const handleExportOption = (format) => {
@@ -293,14 +305,16 @@ const ActualSection = () => {
     setExportDropdown(false);
   };
 
-  const uniqueLoanTypes = [
-    "All Types",
-    ...new Set(actuals.map((actual) => actual.loanType)),
-  ];
-
   return (
-    <div className="actual-section-container">
-      <div className="sidebar">
+    <div className="actual-container">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo1}
           alt="Accion Logo"
@@ -342,56 +356,27 @@ const ActualSection = () => {
         </ul>
       </div>
 
-      <div className="actual-section-white-div">
-        <div className="actual-section-content">
-          <div className="actual-report-header">
-            <div className="actual-report-title">
-              <h2>Actual Report</h2>
-            </div>
-            {/* <div className="actual-time-buttons">
-              <button>Day</button>
-              <button>Week</button>
-              <button>Month</button>
-              <button>Year</button>
-              <button>All Time</button>
-              <button>
-                <FaCalendarAlt /> Custom Date
-              </button>
-            </div> */}
-            <div className="actual-export-button">
-              <button onClick={handleExportClick}>
-                <FaFile /> Export Data
-              </button>
-              {exportDropdown && (
-                <div className="export-dropdown">
-                  <div onClick={() => handleExportOption("Excel")}>
-                    Export as Excel
-                  </div>
-                  <div onClick={() => handleExportOption("CSV")}>
-                    Export as CSV
-                  </div>
-                  <div onClick={() => handleExportOption("PDF")}>
-                    Export as PDF
-                  </div>
-                </div>
-              )}
-            </div>
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Actual Repayments Reports</h1>
+          <p>Track all loan repayments and performance in real time.</p>
+        </div>
+
+        <div className="controls-bar">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by client name, CIF, or account number..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="actual-table-controls">
-            <div className="actual-search-bar">
-              <input
-                type="text"
-                placeholder="Search name of client"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="search-icon" />
-            </div>
-            <div className="actual-filter-spacer" />
+
+          <div className="filters">
             <select
               value={loanTypeFilter}
               onChange={(e) => setLoanTypeFilter(e.target.value)}
-              className="actual-loan-type-filter"
             >
               {uniqueLoanTypes.map((type) => (
                 <option key={type} value={type}>
@@ -400,36 +385,70 @@ const ActualSection = () => {
               ))}
             </select>
           </div>
-          <div className="actual-table-section">
-            <table className="actual-table">
-              <thead>
-                <tr>
-                  <th>CIF</th>
-                  <th>NAME OF CLIENT</th>
-                  <th>ACCOUNT NUMBER</th>
-                  <th>PAYMENT DATE</th>
-                  <th>AMOUNT PAID</th>
-                  <th>LOAN OFFICER</th>
-                  <th>LOAN TYPE</th>
-                  <th>BRANCH</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredActuals.map((actual, index) => (
-                  <tr key={index}>
-                    <td>{actual.cif}</td>
-                    <td>{actual.nameOfClient}</td>
-                    <td>{actual.accountNumber}</td>
-                    <td>{actual.paymentDate}</td>
-                    <td>{actual.amountPaid}</td>
-                    <td>{actual.loanOfficer}</td>
-                    <td>{actual.loanType}</td>
-                    <td>{actual.branch}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          <div className="export-wrapper">
+            <button className="export-btn" onClick={handleExportClick}>
+              <FaFileExport /> Export
+            </button>
+            {exportDropdown && (
+              <div className="export-dropdown">
+                <div onClick={() => handleExportOption("Excel")}>
+                  Export as Excel
+                </div>
+                <div onClick={() => handleExportOption("CSV")}>
+                  Export as CSV
+                </div>
+                <div onClick={() => handleExportOption("PDF")}>
+                  Export as PDF
+                </div>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="table-container">
+          <table className="actual-table">
+            <thead>
+              <tr>
+                <th>CIF</th>
+                <th>Client Name</th>
+                <th>Account No.</th>
+                <th>Payment Date</th>
+                <th>Amount Paid</th>
+                <th>Loan Officer</th>
+                <th>Loan Type</th>
+                <th>Branch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredActuals.map((a, i) => (
+                <tr key={i}>
+                  <td>
+                    <code>{a.cif}</code>
+                  </td>
+                  <td>
+                    <strong>{a.nameOfClient}</strong>
+                  </td>
+                  <td>
+                    <code>{a.accountNumber}</code>
+                  </td>
+                  <td>{a.paymentDate}</td>
+                  <td className="amount positive">{a.amountPaid}</td>
+                  <td>{a.loanOfficer}</td>
+                  <td>
+                    <span
+                      className={`loan-type ${a.loanType
+                        .toLowerCase()
+                        .replace(" ", "-")}`}
+                    >
+                      {a.loanType}
+                    </span>
+                  </td>
+                  <td>{a.branch}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
