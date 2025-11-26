@@ -2,8 +2,19 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import "../styles/AuditTrail.css";
-import { FaSearch, FaFile, FaCalendarAlt } from "react-icons/fa";
-import logo1 from "../assets/accion-logo-svg-orange.svg";
+import {
+  FaSearch,
+  FaFileExport,
+  FaBars,
+  FaTimes,
+  FaUser,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaEdit,
+  FaDownload,
+  FaCheckCircle,
+} from "react-icons/fa";
+import logo1 from "../assets/Picture1.png";
 
 const AuditTrail = () => {
   const navigate = useNavigate();
@@ -58,7 +69,9 @@ const AuditTrail = () => {
     navigate("/CtrComplianceSection.jsx");
   };
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [timeFilter, setTimeFilter] = useState("Last 30 Days");
   const [exportDropdown, setExportDropdown] = useState(false);
 
   const [auditData, setAuditData] = useState([
@@ -94,12 +107,52 @@ const AuditTrail = () => {
     },
   ]);
 
-  const filteredAuditData = auditData.filter(
-    (data) =>
-      data.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      data.event.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      data.details.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAuditData = auditData.filter((item) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      item.user.toLowerCase().includes(term) ||
+      item.event.toLowerCase().includes(term) ||
+      item.details.toLowerCase().includes(term)
+    );
+  });
+
+  const getEventIcon = (type) => {
+    switch (type) {
+      case "login":
+        return <FaSignInAlt />;
+      case "logout":
+        return <FaSignOutAlt />;
+      case "approval":
+        return <FaCheckCircle />;
+      case "update":
+        return <FaEdit />;
+      case "export":
+        return <FaDownload />;
+      case "admin":
+        return <FaUser />;
+      default:
+        return <FaCheckCircle />;
+    }
+  };
+
+  const getEventColor = (type) => {
+    switch (type) {
+      case "login":
+        return "#10b981";
+      case "logout":
+        return "#f59e0b";
+      case "approval":
+        return "#3b82f6";
+      case "update":
+        return "#8b5cf6";
+      case "export":
+        return "#06b6d4";
+      case "admin":
+        return "#ec4899";
+      default:
+        return "#7c3aed";
+    }
+  };
 
   const handleExportClick = () => setExportDropdown(!exportDropdown);
   const handleExportOption = (format) => {
@@ -123,8 +176,16 @@ const AuditTrail = () => {
   };
 
   return (
-    <div className="audit-trail-section-container">
-      <div className="sidebar">
+    <div className="audit-container">
+      {/* Mobile Menu Toggle */}
+      <button
+        className="mobile-menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+      </button>
+      {/* The sidebar */}
+      <div className={`sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         <img
           src={logo1}
           alt="Accion Logo"
@@ -166,76 +227,83 @@ const AuditTrail = () => {
         </ul>
       </div>
 
-      <div className="audit-trail-section-white-div">
-        <div className="audit-trail-section-content">
-          <div className="audit-trail-report-header">
-            <div className="audit-trail-report-title">
-              <h2>Audit Trail Report</h2>
-              <p>Showing data over the last 30 days</p>
-            </div>
-            <div className="audit-trail-time-buttons">
-              <button>Day</button>
-              <button>Week</button>
-              <button>Month</button>
-              <button>Year</button>
-              <button>All Time</button>
-              <button>
-                <FaCalendarAlt /> Custom Date
+      {/* Main content */}
+      <div className="main-content">
+        <div className="page-header">
+          <h1>Audit Trail</h1>
+          <p>
+            Complete system activity log for security and compliance monitoring
+          </p>
+        </div>
+
+        <div className="controls-bar">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by user, event, or details..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="time-filters">
+            {[
+              "Today",
+              "Last 7 Days",
+              "Last 30 Days",
+              "Last 90 Days",
+              "All Time",
+            ].map((period) => (
+              <button
+                key={period}
+                className={timeFilter === period ? "active" : ""}
+                onClick={() => setTimeFilter(period)}
+              >
+                {period}
               </button>
-            </div>
-            <div className="audit-trail-export-button">
-              <button onClick={handleExportClick}>
-                <FaFile /> Export Data
-              </button>
-              {exportDropdown && (
-                <div className="export-dropdown">
-                  <div onClick={() => handleExportOption("Excel")}>
-                    Export as Excel
-                  </div>
-                  <div onClick={() => handleExportOption("CSV")}>
-                    Export as CSV
-                  </div>
-                  <div onClick={() => handleExportOption("PDF")}>
-                    Export as PDF
-                  </div>
+            ))}
+          </div>
+          <div className="export-wrapper">
+            <button className="export-btn" onClick={handleExportClick}>
+              <FaFileExport /> Export
+            </button>
+            {exportDropdown && (
+              <div className="export-dropdown">
+                <div onClick={() => handleExportOption("Excel")}>
+                  Export as Excel
                 </div>
-              )}
+                <div onClick={() => handleExportOption("CSV")}>
+                  Export as CSV
+                </div>
+                <div onClick={() => handleExportOption("PDF")}>
+                  Export as PDF
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="audit-timeline">
+          {filteredAuditData.map((log, i) => (
+            <div key={i} className="audit-entry">
+              <div
+                className="timeline-dot"
+                style={{ backgroundColor: getEventColor(log.type) }}
+              >
+                <div className="icon">{getEventIcon(log.type)}</div>
+              </div>
+              <div className="audit-card">
+                <div className="audit-header">
+                  <h4>{log.event}</h4>
+                  <span className="timestamp">{log.timestamp}</span>
+                </div>
+                <p className="user">
+                  <strong>{log.user}</strong>
+                </p>
+                <p className="details">{log.details}</p>
+              </div>
             </div>
-          </div>
-          <div className="audit-trail-table-controls">
-            <div className="audit-trail-search-bar">
-              <input
-                type="text"
-                placeholder="Search user, event, or details"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="search-icon" />
-            </div>
-            <div className="audit-trail-filter-spacer" />
-          </div>
-          <div className="audit-trail-table-section">
-            <table className="audit-trail-table">
-              <thead>
-                <tr>
-                  <th>@timestamp</th>
-                  <th>User</th>
-                  <th>Event</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAuditData.map((data, index) => (
-                  <tr key={index}>
-                    <td>{data.timestamp}</td>
-                    <td>{data.user}</td>
-                    <td>{data.event}</td>
-                    <td>{data.details}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          ))}
         </div>
       </div>
     </div>
