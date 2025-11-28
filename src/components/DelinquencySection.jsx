@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/DelinquencySection.css";
 import logo1 from "../assets/Picture1.png";
 import * as XLSX from "xlsx";
-import { FaSearch, FaFileExport, FaBars } from "react-icons/fa";
+import { FaSearch, FaFileExport, FaBars, FaTimes } from "react-icons/fa";
 
 const DelinquencySection = () => {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import "../styles/Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import logo2 from "../assets/Picture1.png";
 import userAvatar from "../assets/avatar-male.jpg";
-import { FaBell, FaCommentDots, FaBars } from "react-icons/fa";
+import { FaBell, FaCommentDots, FaBars, FaTimes } from "react-icons/fa";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
